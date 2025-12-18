@@ -1,15 +1,49 @@
 
 import React, { useState } from 'react';
-import { MOCK_STUDENTS } from '../constants';
+import Modal from './Modal';
 
-const StudentList: React.FC = () => {
-  const [students] = useState(MOCK_STUDENTS);
+interface StudentListProps {
+  students: any[];
+  setStudents: React.Dispatch<React.SetStateAction<any[]>>;
+}
+
+const StudentList: React.FC<StudentListProps> = ({ students, setStudents }) => {
   const [searchTerm, setSearchTerm] = useState('');
+  const [isAddModalOpen, setIsAddModalOpen] = useState(false);
+  const [newStudent, setNewStudent] = useState({
+    name: '',
+    class: '10',
+    section: 'A',
+    rollNumber: '',
+    parentsName: ''
+  });
 
   const filteredStudents = students.filter(s => 
     s.name.toLowerCase().includes(searchTerm.toLowerCase()) || 
     s.rollNumber.includes(searchTerm)
   );
+
+  const handleAddStudent = (e: React.FormEvent) => {
+    e.preventDefault();
+    const student = {
+      ...newStudent,
+      id: Math.random().toString(36).substr(2, 9),
+      attendance: 100,
+      feesStatus: 'Pending',
+      gpa: 0.0,
+      lastExam: 'N/A',
+      photo: `https://picsum.photos/seed/${newStudent.name}/100`
+    };
+    setStudents([student, ...students]);
+    setIsAddModalOpen(false);
+    setNewStudent({ name: '', class: '10', section: 'A', rollNumber: '', parentsName: '' });
+  };
+
+  const deleteStudent = (id: string) => {
+    if (confirm('Are you sure you want to delete this student?')) {
+      setStudents(students.filter(s => s.id !== id));
+    }
+  };
 
   return (
     <div className="bg-white rounded-xl shadow-sm overflow-hidden">
@@ -27,16 +61,14 @@ const StudentList: React.FC = () => {
           </svg>
         </div>
         <div className="flex gap-2">
-          <button className="flex items-center gap-2 px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors text-sm font-semibold">
+          <button 
+            onClick={() => setIsAddModalOpen(true)}
+            className="flex items-center gap-2 px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors text-sm font-semibold"
+          >
             <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
               <path fillRule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clipRule="evenodd" />
             </svg>
             Add Student
-          </button>
-          <button className="p-2 border border-slate-200 rounded-lg text-slate-600 hover:bg-slate-50 transition-colors">
-            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-            </svg>
           </button>
         </div>
       </div>
@@ -95,7 +127,10 @@ const StudentList: React.FC = () => {
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
                       </svg>
                     </button>
-                    <button className="p-1.5 text-slate-400 hover:text-red-600 transition-colors">
+                    <button 
+                      onClick={() => deleteStudent(student.id)}
+                      className="p-1.5 text-slate-400 hover:text-red-600 transition-colors"
+                    >
                       <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
                       </svg>
@@ -107,6 +142,74 @@ const StudentList: React.FC = () => {
           </tbody>
         </table>
       </div>
+
+      {/* Add Student Modal */}
+      <Modal 
+        isOpen={isAddModalOpen} 
+        onClose={() => setIsAddModalOpen(false)} 
+        title="Add New Student"
+      >
+        <form onSubmit={handleAddStudent} className="space-y-4">
+          <div className="grid grid-cols-2 gap-4">
+            <div className="col-span-2">
+              <label className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-1 block">Full Name</label>
+              <input 
+                type="text" 
+                required
+                value={newStudent.name}
+                onChange={(e) => setNewStudent({...newStudent, name: e.target.value})}
+                className="w-full px-4 py-2 bg-slate-50 border border-slate-200 rounded-lg outline-none focus:ring-2 focus:ring-indigo-500" 
+              />
+            </div>
+            <div>
+              <label className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-1 block">Class</label>
+              <input 
+                type="text" 
+                required
+                value={newStudent.class}
+                onChange={(e) => setNewStudent({...newStudent, class: e.target.value})}
+                className="w-full px-4 py-2 bg-slate-50 border border-slate-200 rounded-lg outline-none focus:ring-2 focus:ring-indigo-500" 
+              />
+            </div>
+            <div>
+              <label className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-1 block">Section</label>
+              <input 
+                type="text" 
+                required
+                value={newStudent.section}
+                onChange={(e) => setNewStudent({...newStudent, section: e.target.value})}
+                className="w-full px-4 py-2 bg-slate-50 border border-slate-200 rounded-lg outline-none focus:ring-2 focus:ring-indigo-500" 
+              />
+            </div>
+            <div>
+              <label className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-1 block">Roll Number</label>
+              <input 
+                type="text" 
+                required
+                value={newStudent.rollNumber}
+                onChange={(e) => setNewStudent({...newStudent, rollNumber: e.target.value})}
+                className="w-full px-4 py-2 bg-slate-50 border border-slate-200 rounded-lg outline-none focus:ring-2 focus:ring-indigo-500" 
+              />
+            </div>
+            <div>
+              <label className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-1 block">Parent's Name</label>
+              <input 
+                type="text" 
+                required
+                value={newStudent.parentsName}
+                onChange={(e) => setNewStudent({...newStudent, parentsName: e.target.value})}
+                className="w-full px-4 py-2 bg-slate-50 border border-slate-200 rounded-lg outline-none focus:ring-2 focus:ring-indigo-500" 
+              />
+            </div>
+          </div>
+          <button 
+            type="submit"
+            className="w-full py-3 bg-indigo-600 text-white font-bold rounded-xl shadow-lg shadow-indigo-100 hover:bg-indigo-700 transition-all active:scale-95"
+          >
+            Create Student Profile
+          </button>
+        </form>
+      </Modal>
     </div>
   );
 };

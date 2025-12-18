@@ -1,8 +1,12 @@
 
 import React from 'react';
-import { MOCK_STUDENTS } from '../constants';
 
-const FeeManagement: React.FC = () => {
+// Added students prop to fix type error in App.tsx
+interface FeeManagementProps {
+  students: any[];
+}
+
+const FeeManagement: React.FC<FeeManagementProps> = ({ students }) => {
   return (
     <div className="space-y-6">
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -23,7 +27,7 @@ const FeeManagement: React.FC = () => {
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100">
-                {MOCK_STUDENTS.filter(s => s.feesStatus !== 'Paid').map((student) => (
+                {students.filter(s => s.feesStatus !== 'Paid').map((student) => (
                   <tr key={student.id} className="hover:bg-slate-50 text-sm">
                     <td className="px-6 py-4">
                       <div className="font-bold text-slate-800">{student.name}</div>

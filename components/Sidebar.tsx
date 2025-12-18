@@ -5,9 +5,10 @@ import { Icons } from '../constants';
 interface SidebarProps {
   activeTab: string;
   setActiveTab: (tab: string) => void;
+  onLogout: () => void;
 }
 
-const Sidebar: React.FC<SidebarProps> = ({ activeTab, setActiveTab }) => {
+const Sidebar: React.FC<SidebarProps> = ({ activeTab, setActiveTab, onLogout }) => {
   const menuItems = [
     { id: 'dashboard', label: 'Dashboard', icon: Icons.Dashboard },
     { id: 'students', label: 'Students', icon: Icons.Students },
@@ -22,7 +23,7 @@ const Sidebar: React.FC<SidebarProps> = ({ activeTab, setActiveTab }) => {
   ];
 
   return (
-    <aside className="w-20 md:w-64 bg-slate-900 text-white flex flex-col h-full transition-all duration-300 shadow-xl overflow-hidden">
+    <aside className="w-20 md:w-64 bg-slate-900 text-white flex flex-col h-full transition-all duration-300 shadow-xl overflow-hidden shrink-0">
       <div className="p-6 flex items-center gap-3 shrink-0">
         <div className="w-10 h-10 bg-indigo-600 rounded-lg flex items-center justify-center font-bold text-xl shadow-lg shadow-indigo-500/30">
           E
@@ -48,11 +49,14 @@ const Sidebar: React.FC<SidebarProps> = ({ activeTab, setActiveTab }) => {
       </nav>
 
       <div className="p-4 border-t border-slate-800 shrink-0">
-        <button className="w-full flex items-center gap-3 px-4 py-2 text-slate-400 hover:text-red-400 transition-colors">
+        <button 
+          onClick={onLogout}
+          className="w-full flex items-center gap-3 px-4 py-3 text-slate-400 hover:text-red-400 hover:bg-red-400/10 rounded-xl transition-all font-medium text-sm"
+        >
           <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
           </svg>
-          <span className="hidden md:block text-sm font-medium">Logout</span>
+          <span className="hidden md:block">Logout System</span>
         </button>
       </div>
     </aside>

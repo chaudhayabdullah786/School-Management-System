@@ -1,16 +1,42 @@
 
 import React, { useState } from 'react';
-import { MOCK_ANNOUNCEMENTS } from '../constants';
+import Modal from './Modal';
 
-const Communication: React.FC = () => {
+interface CommunicationProps {
+  announcements: any[];
+  setAnnouncements: React.Dispatch<React.SetStateAction<any[]>>;
+}
+
+const Communication: React.FC<CommunicationProps> = ({ announcements, setAnnouncements }) => {
   const [filter, setFilter] = useState('All');
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [newMessage, setNewMessage] = useState({
+    title: '',
+    content: '',
+    type: 'Notice'
+  });
+
+  const handleSendMessage = (e: React.FormEvent) => {
+    e.preventDefault();
+    const newAnn = {
+      ...newMessage,
+      id: Math.random().toString(36).substr(2, 9),
+      date: new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
+    };
+    setAnnouncements([newAnn, ...announcements]);
+    setIsModalOpen(false);
+    setNewMessage({ title: '', content: '', type: 'Notice' });
+  };
 
   return (
     <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
       {/* Sidebar Filters */}
       <div className="lg:col-span-1 space-y-4">
         <div className="bg-white rounded-2xl shadow-sm border border-slate-200 p-4">
-          <button className="w-full py-3 bg-indigo-600 text-white rounded-xl font-bold text-sm mb-6 shadow-lg shadow-indigo-100 hover:bg-indigo-700 transition-all">
+          <button 
+            onClick={() => setIsModalOpen(true)}
+            className="w-full py-3 bg-indigo-600 text-white rounded-xl font-bold text-sm mb-6 shadow-lg shadow-indigo-100 hover:bg-indigo-700 transition-all"
+          >
             Compose Message
           </button>
           <div className="space-y-1">
@@ -32,7 +58,7 @@ const Communication: React.FC = () => {
 
       {/* Message Feed */}
       <div className="lg:col-span-3 space-y-4">
-        {MOCK_ANNOUNCEMENTS.filter(a => filter === 'All' || a.type === filter).map((announcement) => (
+        {announcements.filter(a => filter === 'All' || a.type === filter).map((announcement) => (
           <div key={announcement.id} className="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden hover:shadow-md transition-shadow group">
             <div className="p-6">
               <div className="flex items-center justify-between mb-4">
@@ -40,6 +66,7 @@ const Communication: React.FC = () => {
                   <div className={`w-10 h-10 rounded-full flex items-center justify-center font-bold text-white shadow-sm ${
                     announcement.type === 'Notice' ? 'bg-blue-500' : 
                     announcement.type === 'Academic' ? 'bg-indigo-500' : 
+                    announcement.type === 'Urgent' ? 'bg-red-500' :
                     'bg-amber-500'
                   }`}>
                     {announcement.type[0]}
@@ -50,11 +77,14 @@ const Communication: React.FC = () => {
                   </div>
                 </div>
                 <div className="flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                  <button className="p-2 text-slate-400 hover:text-indigo-600"><Icons.Edit /></button>
-                  <button className="p-2 text-slate-400 hover:text-red-600"><Icons.Trash /></button>
+                  <button className="p-2 text-slate-400 hover:text-red-600">
+                    <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                    </svg>
+                  </button>
                 </div>
               </div>
-              <p className="text-sm text-slate-600 leading-relaxed pl-13 ml-13 border-l-2 border-slate-100 pl-4">
+              <p className="text-sm text-slate-600 leading-relaxed pl-4 border-l-2 border-slate-100">
                 {announcement.content}
               </p>
             </div>
@@ -70,21 +100,51 @@ const Communication: React.FC = () => {
           </div>
         ))}
       </div>
+
+      <Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} title="Compose New Announcement">
+        <form onSubmit={handleSendMessage} className="space-y-4">
+          <div>
+            <label className="text-xs font-bold text-slate-400 uppercase mb-2 block">Announcement Title</label>
+            <input 
+              type="text" 
+              required
+              placeholder="e.g. School Holiday Notice"
+              value={newMessage.title}
+              onChange={(e) => setNewMessage({...newMessage, title: e.target.value})}
+              className="w-full px-4 py-3 bg-slate-50 border border-slate-100 rounded-xl outline-none focus:ring-2 focus:ring-indigo-500" 
+            />
+          </div>
+          <div>
+            <label className="text-xs font-bold text-slate-400 uppercase mb-2 block">Category</label>
+            <select 
+              value={newMessage.type}
+              onChange={(e) => setNewMessage({...newMessage, type: e.target.value})}
+              className="w-full px-4 py-2 bg-slate-50 border border-slate-100 rounded-xl outline-none focus:ring-2 focus:ring-indigo-500"
+            >
+              <option>Notice</option>
+              <option>Academic</option>
+              <option>Event</option>
+              <option>Urgent</option>
+            </select>
+          </div>
+          <div>
+            <label className="text-xs font-bold text-slate-400 uppercase mb-2 block">Content</label>
+            <textarea 
+              rows={4}
+              required
+              placeholder="Type your message here..."
+              value={newMessage.content}
+              onChange={(e) => setNewMessage({...newMessage, content: e.target.value})}
+              className="w-full px-4 py-3 bg-slate-50 border border-slate-100 rounded-xl outline-none focus:ring-2 focus:ring-indigo-500" 
+            />
+          </div>
+          <button type="submit" className="w-full py-4 bg-indigo-600 text-white font-bold rounded-xl shadow-lg shadow-indigo-100 hover:bg-indigo-700 transition-all">
+            Broadcast to All Parents & Students
+          </button>
+        </form>
+      </Modal>
     </div>
   );
-};
-
-const Icons = {
-  Edit: () => (
-    <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
-    </svg>
-  ),
-  Trash: () => (
-    <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-    </svg>
-  )
 };
 
 export default Communication;

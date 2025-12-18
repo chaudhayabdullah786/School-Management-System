@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { UserRole } from './types';
 import Sidebar from './components/Sidebar';
 import Dashboard from './components/Dashboard';
@@ -12,46 +12,68 @@ import Timetable from './components/Timetable';
 import Exams from './components/Exams';
 import Communication from './components/Communication';
 import Reports from './components/Reports';
+import Login from './components/Login';
+import { MOCK_STUDENTS, MOCK_TEACHERS, MOCK_ANNOUNCEMENTS, MOCK_TIMETABLE } from './constants';
 
 const App: React.FC = () => {
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [activeTab, setActiveTab] = useState('dashboard');
   const [role, setRole] = useState<UserRole>(UserRole.ADMIN);
+  
+  // Centralized State
+  const [students, setStudents] = useState(MOCK_STUDENTS);
+  const [teachers, setTeachers] = useState(MOCK_TEACHERS);
+  const [announcements, setAnnouncements] = useState(MOCK_ANNOUNCEMENTS);
+  const [timetable, setTimetable] = useState(MOCK_TIMETABLE);
+  const [globalSearch, setGlobalSearch] = useState('');
+
+  // Handle Login/Logout
+  const handleLogin = (userRole: UserRole) => {
+    setRole(userRole);
+    setIsLoggedIn(true);
+  };
+
+  const handleLogout = () => {
+    setIsLoggedIn(false);
+    setActiveTab('dashboard');
+  };
+
+  if (!isLoggedIn) {
+    return <Login onLogin={handleLogin} />;
+  }
 
   const renderContent = () => {
     switch (activeTab) {
       case 'dashboard':
-        return <Dashboard />;
+        return <Dashboard students={students} teachers={teachers} />;
       case 'students':
-        return <StudentList />;
+        return <StudentList students={students} setStudents={setStudents} />;
       case 'teachers':
-        return <TeacherList />;
+        return <TeacherList teachers={teachers} setTeachers={setTeachers} />;
       case 'attendance':
-        return <Attendance />;
+        return <Attendance students={students} />;
       case 'fees':
-        return <FeeManagement />;
+        return <FeeManagement students={students} />;
       case 'timetable':
-        return <Timetable />;
+        return <Timetable timetable={timetable} setTimetable={setTimetable} />;
       case 'exams':
-        return <Exams />;
+        return <Exams students={students} />;
       case 'communication':
-        return <Communication />;
+        return <Communication announcements={announcements} setAnnouncements={setAnnouncements} />;
       case 'reports':
         return <Reports />;
       case 'ai-insights':
-        return <AIInsights />;
+        return <AIInsights students={students} />;
       default:
-        return <Dashboard />;
+        return <Dashboard students={students} teachers={teachers} />;
     }
   };
 
   return (
     <div className="flex h-screen bg-slate-50 overflow-hidden text-slate-900">
-      {/* Sidebar */}
-      <Sidebar activeTab={activeTab} setActiveTab={setActiveTab} />
+      <Sidebar activeTab={activeTab} setActiveTab={setActiveTab} onLogout={handleLogout} />
 
-      {/* Main Content Area */}
       <div className="flex-1 flex flex-col min-w-0 overflow-hidden">
-        {/* Header */}
         <header className="bg-white border-b border-slate-200 h-16 flex items-center justify-between px-8 sticky top-0 z-10">
           <div className="flex items-center gap-4">
             <h2 className="text-xl font-bold text-slate-800 capitalize">
@@ -63,6 +85,8 @@ const App: React.FC = () => {
               <input 
                 type="text" 
                 placeholder="Global search..." 
+                value={globalSearch}
+                onChange={(e) => setGlobalSearch(e.target.value)}
                 className="pl-10 pr-4 py-1.5 bg-slate-100 border-none rounded-full text-xs focus:ring-2 focus:ring-indigo-500 w-48 md:w-64 transition-all"
               />
               <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 absolute left-3.5 top-2 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -84,7 +108,6 @@ const App: React.FC = () => {
           </div>
         </header>
 
-        {/* Dynamic Body */}
         <main className="flex-1 overflow-y-auto p-4 md:p-8 bg-slate-50/50">
           <div className="max-w-[1600px] mx-auto">
             {renderContent()}

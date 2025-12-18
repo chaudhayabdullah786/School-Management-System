@@ -19,7 +19,8 @@ const feeData = [
   { name: 'Overdue', value: 10, color: '#ef4444' },
 ];
 
-const Dashboard: React.FC = () => {
+// Added students and teachers props to fix type error in App.tsx
+const Dashboard: React.FC<{ students: any[]; teachers: any[] }> = ({ students, teachers }) => {
   return (
     <div className="space-y-6">
       {/* Stat Cards */}

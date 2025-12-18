@@ -8,7 +8,8 @@ const exams = [
   { id: 4, name: 'Practicals', subject: 'Inorganic Chemistry', date: '2023-11-25', duration: '4 Hours', status: 'Scheduled', room: 'Chemistry Lab' },
 ];
 
-const Exams: React.FC = () => {
+// Added students prop to fix type error in App.tsx
+const Exams: React.FC<{ students: any[] }> = ({ students }) => {
   return (
     <div className="space-y-6">
       <div className="flex flex-col md:flex-row gap-6">
@@ -16,7 +17,8 @@ const Exams: React.FC = () => {
           <div className="p-6 border-b border-slate-100 flex items-center justify-between">
             <h3 className="font-bold text-slate-800">Exam Calendar</h3>
             <div className="flex gap-2">
-              <button className="p-2 hover:bg-slate-100 rounded-lg transition-colors"><Icons.AI /></button>
+              {/* Icons.AI is a React element, so it must be rendered with curly braces {} rather than as a component tag <Icons.AI /> */}
+              <button className="p-2 hover:bg-slate-100 rounded-lg transition-colors">{Icons.AI}</button>
             </div>
           </div>
           <div className="p-6 divide-y divide-slate-100">
@@ -59,9 +61,9 @@ const Exams: React.FC = () => {
             <div>
               <label className="text-xs font-bold text-slate-400 uppercase mb-2 block">Student Name</label>
               <select className="w-full px-4 py-2 bg-slate-50 border border-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 outline-none">
-                <option>Alex Thompson</option>
-                <option>Maria Garcia</option>
-                <option>James Wilson</option>
+                {students.map(s => (
+                  <option key={s.id}>{s.name}</option>
+                ))}
               </select>
             </div>
             <div>

@@ -1,10 +1,14 @@
 
 import React, { useState } from 'react';
-import { MOCK_STUDENTS } from '../constants';
 import { getStudentInsights } from '../services/gemini';
 
-const AIInsights: React.FC = () => {
-  const [selectedStudent, setSelectedStudent] = useState(MOCK_STUDENTS[0]);
+// Added students prop to fix type error in App.tsx
+interface AIInsightsProps {
+  students: any[];
+}
+
+const AIInsights: React.FC<AIInsightsProps> = ({ students }) => {
+  const [selectedStudent, setSelectedStudent] = useState(students[0]);
   const [insight, setInsight] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
@@ -34,7 +38,7 @@ const AIInsights: React.FC = () => {
           <div className="bg-white p-6 rounded-xl shadow-sm border border-slate-100">
             <h3 className="font-bold text-slate-800 mb-4 text-sm uppercase tracking-wider">Select Student</h3>
             <div className="space-y-2 max-h-[400px] overflow-y-auto pr-2">
-              {MOCK_STUDENTS.map((s) => (
+              {students.map((s) => (
                 <button
                   key={s.id}
                   onClick={() => {
