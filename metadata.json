@@ -1,7 +1,0 @@
-{
-  "name": "EduPulse - All-in-One School Management System",
-  "description": "A comprehensive school management platform featuring student & teacher administration, attendance tracking, fee management, academic analytics, and AI-powered performance insights.",
-  "requestFramePermissions": [
-    "camera"
-  ]
-}
